@@ -1,0 +1,47 @@
+{
+  "Comment": "Trabajo 2 - Pipeline batch NASA POWER + IDEAM: limpieza/join y dos agregaciones en paralelo",
+  "StartAt": "Limpieza y Join",
+  "States": {
+    "Limpieza y Join": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Arguments": {
+        "JobName": "glue-limpieza-join"
+      },
+      "Next": "Agregaciones en paralelo"
+    },
+    "Agregaciones en paralelo": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Rama 1 - Horas sol pico",
+          "States": {
+            "Rama 1 - Horas sol pico": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Arguments": {
+                "JobName": "glue-rama1-hsp"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "Rama 2 - Meses con mas radiacion",
+          "States": {
+            "Rama 2 - Meses con mas radiacion": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Arguments": {
+                "JobName": "glue-rama2-meses"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "End": true
+    }
+  },
+  "QueryLanguage": "JSONata"
+}
