@@ -265,6 +265,17 @@ Kinesis Data Streams: stream-radiacion (1 shard)
 
 > En `us-east-1`, CloudFormation muestra un único stack creado automáticamente por AWS Academy al iniciar el laboratorio (descripción: *"associate Learner Lab template (academy)"*). No se creó ningún stack para este trabajo.
 
+## Decisión: AWS Lambda en lugar de Amazon Managed Service for Apache Flink
+
+El enunciado sugiere Amazon Managed Service for Apache Flink para calcular las ventanas, pero también permite AWS Lambda. Se eligió **Lambda** porque el volumen de datos es pequeño:
+
+- El productor publica unos **2 eventos por segundo** durante 6 minutos (~600 eventos por corrida), muy por debajo de lo que justifica un motor de streaming como Flink.
+- El trigger de Kinesis en Lambda ya trae **ventanas tumbling integradas** (*Tumbling window duration* = 60 s), suficientes para calcular el conteo y el promedio por minuto.
+- **Costo:** Lambda cobra solo por ejecución; Flink cobra por hora mientras la aplicación está encendida, aunque no lleguen datos.
+- **Simplicidad:** el código es una función de Python que se crea y se pega en la consola, sin montar una aplicación Flink ni sus conectores.
+
+Con volúmenes mucho mayores (miles de eventos por segundo), ventanas más complejas o procesamiento por tiempo del evento, Flink sería la opción adecuada.
+
 ## El evento
 
 ```json
